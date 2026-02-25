@@ -103,3 +103,9 @@ test_size: 0.2
 random_state: 42
 model_max_iter: 500
 class_weight: balanced
+
+# Drift monitoring thresholds
+drift_warn_threshold: 0.1
+drift_alert_threshold: 0.25
+drift_min_samples: 50
+drift_max_categories: 20
