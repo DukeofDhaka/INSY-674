@@ -1,0 +1,105 @@
+# Data files
+training_data_file: train.csv
+test_data_file: test.csv
+pipeline_save_file: employability_model_v
+
+# Target and feature handling
+target: target
+drop_features:
+  - enrollee_id
+
+# Categorical imputation
+categorical_missing_with_constant:
+  - gender
+  - major_discipline
+  - company_size
+  - company_type
+
+categorical_missing_with_frequent:
+  - enrolled_university
+  - education_level
+  - experience
+  - last_new_job
+
+# Numeric variables
+numeric_features:
+  - city_development_index
+  - training_hours
+
+yeojohnson_features:
+  - training_hours
+
+# Encodings
+ordinal_features:
+  - relevent_experience
+  - enrolled_university
+  - education_level
+  - major_discipline
+
+arbitrary_ordinal_features:
+  - city
+
+one_hot_features:
+  - gender
+
+count_frequency_features:
+  - company_type
+
+# Custom mapping variables
+experience_features:
+  - experience
+
+experience_map:
+  "<1": 0
+  "1": 1
+  "2": 2
+  "3": 3
+  "4": 4
+  "5": 5
+  "6": 6
+  "7": 7
+  "8": 8
+  "9": 9
+  "10": 10
+  "11": 11
+  "12": 12
+  "13": 13
+  "14": 14
+  "15": 15
+  "16": 16
+  "17": 17
+  "18": 18
+  "19": 19
+  "20": 20
+  ">20": 21
+
+last_new_job_features:
+  - last_new_job
+
+last_new_job_map:
+  "never": 0
+  "1": 1
+  "2": 2
+  "3": 3
+  "4": 4
+  ">4": 5
+
+company_size_features:
+  - company_size
+
+company_size_map:
+  "Missing": 0
+  "<10": 1
+  "10/49": 2
+  "50-99": 3
+  "100-500": 4
+  "500-999": 5
+  "1000-4999": 6
+  "5000-9999": 7
+  "10000+": 8
+
+# Train split and model settings
+test_size: 0.2
+random_state: 42
+model_max_iter: 500
+class_weight: balanced

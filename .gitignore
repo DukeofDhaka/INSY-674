@@ -6,3 +6,11 @@ dist/
 build/
 .env
 *.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+src/trained_models/*.pkl
+!src/trained_models/.gitkeep
+*.log
