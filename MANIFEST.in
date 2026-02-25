@@ -1,0 +1,4 @@
+include README.md
+include src/VERSION
+include src/config.yml
+recursive-include requirements *.txt
