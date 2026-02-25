@@ -1,6 +1,21 @@
 # INSY-674 End-to-End ML Project
 
+[![CI](https://github.com/tyagi14/INSY-674/actions/workflows/ci.yml/badge.svg)](https://github.com/tyagi14/INSY-674/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
+
 This repository contains an end-to-end machine learning workflow for predicting whether a candidate is likely to look for a new job (`target`), using the HR analytics dataset included in `src/data`.
+
+## Live deployment
+
+| Endpoint | URL |
+|----------|-----|
+| API Docs (Swagger) | [https://insy674-ml-api.onrender.com/docs](https://insy674-ml-api.onrender.com/docs) |
+| Health Check | [https://insy674-ml-api.onrender.com/api/v1/health](https://insy674-ml-api.onrender.com/api/v1/health) |
+| Predict | `POST` [https://insy674-ml-api.onrender.com/api/v1/predict](https://insy674-ml-api.onrender.com/api/v1/predict) |
+
+> **Note:** The free-tier Render instance spins down after inactivity. The first request after idle may take ~30-60 seconds to cold-start.
+
 ## Workflow implemented (Research to Production)
 ### Phase 1: Research
 - Data analysis in Jupyter notebooks
@@ -25,6 +40,7 @@ This repository contains an end-to-end machine learning workflow for predicting 
 ### Phase 5: Deployment
 - Docker containerization (`Dockerfile`)
 - Render blueprint deployment config (`render.yaml`)
+- GitHub Actions CI pipeline (`.github/workflows/ci.yml`)
 
 ## Stack used
 - ML & Data Processing: Scikit-learn, Feature-engine, Pandas, NumPy
@@ -94,8 +110,8 @@ docker run --rm -p 8000:8000 insy674-ml-api
 2) In Render dashboard, choose **New +** → **Blueprint**.
 3) Select this repository. Render will read `render.yaml` and create the web service.
 4) Confirm deploy; once live, open:
-- `https://<your-render-service>.onrender.com/api/v1/health`
-- `https://<your-render-service>.onrender.com/docs`
+- `https://insy674-ml-api.onrender.com/api/v1/health`
+- `https://insy674-ml-api.onrender.com/docs`
 
 The service uses the Docker build defined in `Dockerfile`, including model training during image build.
 
