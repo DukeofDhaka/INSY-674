@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: insy674-ml-api
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health

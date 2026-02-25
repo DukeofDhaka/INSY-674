@@ -24,11 +24,11 @@ This repository contains an end-to-end machine learning workflow for predicting 
 
 ### Phase 5: Deployment
 - Docker containerization (`Dockerfile`)
-- Heroku-ready process/deploy config (`app-fastapi/Procfile`, `heroku.yml`, `app-fastapi/runtime.txt`)
+- Render blueprint deployment config (`render.yaml`)
 
 ## Stack used
 - ML & Data Processing: Scikit-learn, Feature-engine, Pandas, NumPy
-- Production & Deployment: FastAPI, Docker, Heroku-ready config, PyPI-ready packaging
+- Production & Deployment: FastAPI, Docker, Render blueprint config, PyPI-ready packaging
 - Development Tools: Jupyter, Tox, Loguru, Git/GitHub
 
 ## Project structure
@@ -89,6 +89,15 @@ pytest app-fastapi/app/tests -q
 docker build -t insy674-ml-api .
 docker run --rm -p 8000:8000 insy674-ml-api
 ```
+## Deploy on Render (Free tier)
+1) Push this repository to GitHub.
+2) In Render dashboard, choose **New +** → **Blueprint**.
+3) Select this repository. Render will read `render.yaml` and create the web service.
+4) Confirm deploy; once live, open:
+- `https://<your-render-service>.onrender.com/api/v1/health`
+- `https://<your-render-service>.onrender.com/docs`
+
+The service uses the Docker build defined in `Dockerfile`, including model training during image build.
 
 ## API smoke test
 ```bash
