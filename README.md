@@ -71,6 +71,7 @@ uvicorn app.main:app --app-dir app-fastapi --reload
 - `GET /` : basic welcome page
 - `GET /api/v1/health` : API + model health/version (+ optional model metadata if available)
 - `POST /api/v1/predict` : batch predictions
+- `POST /api/v1/monitor/drift` : batch drift report against training baseline
 
 Example health response with metadata:
 
@@ -117,9 +118,68 @@ Example payload:
 }
 ```
 
+Example drift request payload:
+
+```json
+{
+  "inputs": [
+    {
+      "city": "city_41",
+      "city_development_index": 0.827,
+      "gender": "Male",
+      "relevent_experience": "Has relevent experience",
+      "enrolled_university": "Full time course",
+      "education_level": "Graduate",
+      "major_discipline": "STEM",
+      "experience": "9",
+      "company_size": "<10",
+      "company_type": "Pvt Ltd",
+      "last_new_job": "1",
+      "training_hours": 21.0
+    }
+  ]
+}
+```
+
+Example drift response:
+
+```json
+{
+  "model_version": "0.1.0",
+  "baseline_version": "0.1.0",
+  "n_records": 60,
+  "overall_status": "ok",
+  "thresholds": {
+    "warn": 0.1,
+    "drifted": 0.25
+  },
+  "top_drifting_features": [],
+  "feature_reports": [
+    {
+      "feature_name": "city",
+      "feature_type": "categorical",
+      "psi": 0.02,
+      "status": "ok",
+      "expected_missing_rate": 0.0,
+      "observed_missing_rate": 0.0,
+      "missing_rate_delta": 0.0,
+      "expected_distribution": {"city_41": 0.7, "city_11": 0.3, "__OTHER__": 0.0, "__MISSING__": 0.0},
+      "observed_distribution": {"city_41": 0.68, "city_11": 0.32, "__OTHER__": 0.0, "__MISSING__": 0.0}
+    }
+  ],
+  "message": null
+}
+```
+
+Interpretation note:
+- `overall_status = insufficient_data` means the request had fewer rows than configured `drift_min_samples` (default: `50`).
+- PSI thresholds used by the API are configurable in `src/config.yml`:
+  - `drift_warn_threshold` (default `0.1`)
+  - `drift_alert_threshold` (default `0.25`)
+
 ## Run tests
 ```bash
-pytest app-fastapi/app/tests -q
+pytest app-fastapi/app/tests src/monitoring/test_drift.py -q
 ```
 
 ## Production run (Docker)
@@ -144,4 +204,5 @@ curl -s http://127.0.0.1:8000/api/v1/health
 
 ## Notes
 - The trained model is versioned and saved under `src/trained_models/`.
+- Drift baseline artifacts are versioned and saved under `src/trained_models/` as `*_drift_baseline.json`.
 - Retraining overwrites old model artifacts to keep one active version per package version.

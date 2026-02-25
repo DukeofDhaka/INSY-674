@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 
 from src import __version__ as _version
 from src.config.core import config
+from src.monitoring.drift import build_drift_baseline
 from src.pipeline import pipe
 from src.processing.data_manager import load_dataset, save_metadata, save_pipeline
 

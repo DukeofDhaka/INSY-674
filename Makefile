@@ -9,7 +9,7 @@ train:
 	$(PYTHON) -m src.train_pipeline
 
 test:
-	pytest app-fastapi/app/tests -q
+	pytest app-fastapi/app/tests src/monitoring/test_drift.py -q
 
 run-api:
 	uvicorn app.main:app --app-dir app-fastapi --host 0.0.0.0 --port 8000 --reload
