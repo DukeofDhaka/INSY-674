@@ -2,6 +2,7 @@ services:
   - type: web
     name: insy674-ml-api
     runtime: docker
+    repo: https://github.com/tyagi14/INSY-674.git
     plan: free
     autoDeploy: true
     branch: main
