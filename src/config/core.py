@@ -42,6 +42,10 @@ class ModelConfig(BaseModel):
     random_state: int = 42
     model_max_iter: int = 500
     class_weight: str | None = "balanced"
+    drift_warn_threshold: float = 0.1
+    drift_alert_threshold: float = 0.25
+    drift_min_samples: int = 50
+    drift_max_categories: int = 20
 
 
 class Config(BaseModel):

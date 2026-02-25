@@ -6,8 +6,9 @@ from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
 from src.config.core import config
+from src.monitoring.drift import build_drift_baseline
 from src.pipeline import pipe
-from src.processing.data_manager import load_dataset, save_pipeline
+from src.processing.data_manager import load_dataset, save_drift_baseline, save_pipeline
 
 
 def run_training() -> Dict[str, float]:
@@ -34,7 +35,9 @@ def run_training() -> Dict[str, float]:
         "roc_auc": float(roc_auc_score(y_valid, y_proba)),
     }
 
+    drift_baseline = build_drift_baseline(x_train=x_train, config=config.ml_config)
     save_pipeline(pipeline_to_persist=pipe)
+    save_drift_baseline(baseline=drift_baseline)
     return metrics
 
 

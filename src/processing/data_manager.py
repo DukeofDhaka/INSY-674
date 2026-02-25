@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import typing as t
 from pathlib import Path
 
@@ -51,3 +52,28 @@ def remove_old_pipelines(files_to_keep: t.List[str]) -> None:
     for model_file in TRAINED_MODEL_DIR.iterdir():
         if model_file.name not in do_not_delete and model_file.is_file():
             model_file.unlink()
+
+
+def drift_baseline_file_name() -> str:
+    return f"{config.app_config.pipeline_save_file}{_version}_drift_baseline.json"
+
+
+def drift_baseline_artifact_path() -> Path:
+    return TRAINED_MODEL_DIR / drift_baseline_file_name()
+
+
+def save_drift_baseline(baseline: t.Dict[str, t.Any]) -> None:
+    file_path = drift_baseline_artifact_path()
+    with file_path.open("w", encoding="utf-8") as file:
+        json.dump(baseline, file, indent=2)
+
+
+def load_drift_baseline() -> t.Optional[t.Dict[str, t.Any]]:
+    file_path = drift_baseline_artifact_path()
+    if not file_path.exists():
+        return None
+    with file_path.open("r", encoding="utf-8") as file:
+        loaded = json.load(file)
+    if isinstance(loaded, dict):
+        return loaded
+    return None
