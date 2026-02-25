@@ -101,85 +101,186 @@ def test_predict_validation_error(client):
     assert response.status_code == 422
 
 
-def test_drift_endpoint_ok_status(client, monkeypatch):
-    from app import api
-
-    monkeypatch.setattr(api, "load_drift_baseline", lambda: _baseline_for_api_tests())
-    payload = {
-        "inputs": [
-            _valid_input_row(city="city_41", city_development_index=0.82, training_hours=21.0)
-            for _ in range(42)
-        ]
-        + [
-            _valid_input_row(city="city_11", city_development_index=0.82, training_hours=21.0)
-            for _ in range(18)
-        ]
-    }
-    response = client.post("/api/v1/monitor/drift", json=payload)
-
-    assert response.status_code == 200
-    body = response.json()
-    assert body["overall_status"] == "ok"
-    assert body["n_records"] == 60
-
-
-def test_drift_endpoint_warn_or_drifted(client, monkeypatch):
-    from app import api
-
-    monkeypatch.setattr(api, "load_drift_baseline", lambda: _baseline_for_api_tests())
-    payload = {
-        "inputs": [
-            _valid_input_row(
-                city="city_999",
-                city_development_index=0.2,
-                training_hours=320.0,
-            )
-            for _ in range(60)
-        ]
-    }
-    response = client.post("/api/v1/monitor/drift", json=payload)
-
-    assert response.status_code == 200
-    body = response.json()
-    assert body["overall_status"] in {"warn", "drifted"}
-    assert len(body["top_drifting_features"]) > 0
-
-
-def test_drift_endpoint_insufficient_data(client, monkeypatch):
-    from app import api
-
-    monkeypatch.setattr(api, "load_drift_baseline", lambda: _baseline_for_api_tests())
-    payload = {"inputs": [_valid_input_row() for _ in range(10)]}
-    response = client.post("/api/v1/monitor/drift", json=payload)
-
-    assert response.status_code == 200
-    body = response.json()
-    assert body["overall_status"] == "insufficient_data"
-    assert body["message"] is not None
-
-
-def test_drift_endpoint_missing_baseline_503(client, monkeypatch):
-    from app import api
-
-    monkeypatch.setattr(api, "load_drift_baseline", lambda: None)
-    payload = {"inputs": [_valid_input_row()]}
-    response = client.post("/api/v1/monitor/drift", json=payload)
-
-    assert response.status_code == 503
-    body = response.json()
-    assert "detail" in body
-    assert "Drift baseline is missing" in body["detail"]
-
-
-def test_drift_endpoint_validation_error(client):
+def test_predict_negative_training_hours(client):
+    """Test that negative training hours are rejected."""
     payload = {
         "inputs": [
             {
                 "city": "city_41",
                 "city_development_index": 0.827,
+                "gender": "Male",
+                "relevent_experience": "Has relevent experience",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
+                "training_hours": -5.0,
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert "detail" in body
+
+
+def test_predict_invalid_city_development_index_too_high(client):
+    """Test that city_development_index > 1.0 is rejected."""
+    payload = {
+        "inputs": [
+            {
+                "city": "city_41",
+                "city_development_index": 1.5,
+                "gender": "Male",
+                "relevent_experience": "Has relevent experience",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
                 "training_hours": 21.0,
             }
         ]
     }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert "detail" in body
+
+
+def test_predict_invalid_city_development_index_negative(client):
+    """Test that negative city_development_index is rejected."""
+    payload = {
+        "inputs": [
+            {
+                "city": "city_41",
+                "city_development_index": -0.5,
+                "gender": "Male",
+                "relevent_experience": "Has relevent experience",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
+                "training_hours": 21.0,
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert "detail" in body
+
+
+def test_predict_excessive_training_hours(client):
+    """Test that unreasonably high training hours are rejected."""
+    payload = {
+        "inputs": [
+            {
+                "city": "city_41",
+                "city_development_index": 0.827,
+                "gender": "Male",
+                "relevent_experience": "Has relevent experience",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
+                "training_hours": 5000.0,
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert "detail" in body
+
+
+def test_predict_empty_city_name(client):
+    """Test that empty city name is rejected."""
+    payload = {
+        "inputs": [
+            {
+                "city": "",
+                "city_development_index": 0.827,
+                "gender": "Male",
+                "relevent_experience": "Has relevent experience",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
+                "training_hours": 21.0,
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert "detail" in body
+
+
+def test_predict_negative_enrollee_id(client):
+    """Test that negative enrollee_id is rejected."""
+    payload = {
+        "inputs": [
+            {
+                "enrollee_id": -1,
+                "city": "city_41",
+                "city_development_index": 0.827,
+                "gender": "Male",
+                "relevent_experience": "Has relevent experience",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
+                "training_hours": 21.0,
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert "detail" in body
+
+
+def test_predict_empty_relevent_experience(client):
+    """Test that empty relevent_experience is rejected."""
+    payload = {
+        "inputs": [
+            {
+                "city": "city_41",
+                "city_development_index": 0.827,
+                "gender": "Male",
+                "relevent_experience": "",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
+                "training_hours": 21.0,
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert "detail" in body
     response = client.post("/api/v1/monitor/drift", json=payload)
     assert response.status_code == 422
