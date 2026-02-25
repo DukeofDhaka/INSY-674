@@ -1,3 +1,51 @@
+from __future__ import annotations
+
+from types import SimpleNamespace
+
+import pandas as pd
+
+from src.monitoring.drift import build_drift_baseline
+
+
+def _valid_input_row(**overrides):
+    row = {
+        "city": "city_41",
+        "city_development_index": 0.827,
+        "gender": "Male",
+        "relevent_experience": "Has relevent experience",
+        "enrolled_university": "Full time course",
+        "education_level": "Graduate",
+        "major_discipline": "STEM",
+        "experience": "9",
+        "company_size": "<10",
+        "company_type": "Pvt Ltd",
+        "last_new_job": "1",
+        "training_hours": 21.0,
+    }
+    row.update(overrides)
+    return row
+
+
+def _test_drift_config() -> SimpleNamespace:
+    return SimpleNamespace(
+        drift_warn_threshold=0.1,
+        drift_alert_threshold=0.25,
+        drift_min_samples=50,
+        drift_max_categories=20,
+    )
+
+
+def _baseline_for_api_tests():
+    baseline_train = pd.DataFrame(
+        {
+            "city": ["city_41"] * 70 + ["city_11"] * 30,
+            "city_development_index": [0.82] * 100,
+            "training_hours": [21.0] * 100,
+        }
+    )
+    return build_drift_baseline(x_train=baseline_train, config=_test_drift_config())
+
+
 def test_health_endpoint(client):
     response = client.get("/api/v1/health")
     assert response.status_code == 200

@@ -38,7 +38,7 @@ jobs:
         run: python -m src.train_pipeline
 
       - name: Run tests
-        run: pytest app-fastapi/app/tests -q
+        run: pytest app-fastapi/app/tests src/monitoring/test_drift.py -q
 
       - name: Type check
         run: mypy src/ --ignore-missing-imports
