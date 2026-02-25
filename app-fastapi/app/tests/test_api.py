@@ -51,3 +51,30 @@ def test_predict_validation_error(client):
     }
     response = client.post("/api/v1/predict", json=payload)
     assert response.status_code == 422
+
+
+def test_predict_rejects_unknown_field(client):
+    """Test that the API rejects requests with unexpected fields."""
+    payload = {
+        "inputs": [
+            {
+                "city": "city_41",
+                "city_development_index": 0.827,
+                "gender": "Male",
+                "relevent_experience": "Has relevent experience",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
+                "training_hours": 21.0,
+                "unexpected_field": "should_fail",
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert "detail" in body
