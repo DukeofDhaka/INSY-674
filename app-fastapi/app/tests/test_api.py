@@ -34,3 +34,20 @@ def test_predict_endpoint(client):
     assert len(body["predictions"]) == 1
     assert body["predictions"][0] in [0, 1]
     assert "model_version" in body
+    assert "probabilities" in body
+    assert isinstance(body["probabilities"], list)
+    assert len(body["probabilities"]) == 1
+
+
+def test_predict_validation_error(client):
+    payload = {
+        "inputs": [
+            {
+                "city": "city_41",
+                "city_development_index": 0.827,
+                "training_hours": 21.0,
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 422

@@ -1,6 +1,35 @@
 # INSY-674 End-to-End ML Project
 
 This repository contains an end-to-end machine learning workflow for predicting whether a candidate is likely to look for a new job (`target`), using the HR analytics dataset included in `src/data`.
+## Workflow implemented (Research to Production)
+### Phase 1: Research
+- Data analysis in Jupyter notebooks
+- Model experimentation
+- Pipeline creation
+
+### Phase 2: Production Code
+- Central config management via `src/config.yml`
+- Modularized processing in `src/processing/`
+- Reusable training and inference modules (`src/train_pipeline.py`, `src/predict.py`)
+
+### Phase 3: Package Development
+- Python package structure under `src/`
+- Versioning in `src/VERSION`
+- Dependency management with split requirements and packaging metadata (`setup.py`, `pyproject.toml`)
+
+### Phase 4: API Development
+- FastAPI REST endpoints (`/api/v1/health`, `/api/v1/predict`)
+- Pydantic validation schemas
+- Application logging with Loguru (with safe fallback)
+
+### Phase 5: Deployment
+- Docker containerization (`Dockerfile`)
+- Heroku-ready process/deploy config (`app-fastapi/Procfile`, `heroku.yml`, `app-fastapi/runtime.txt`)
+
+## Stack used
+- ML & Data Processing: Scikit-learn, Feature-engine, Pandas, NumPy
+- Production & Deployment: FastAPI, Docker, Heroku-ready config, PyPI-ready packaging
+- Development Tools: Jupyter, Tox, Loguru, Git/GitHub
 
 ## Project structure
 - `src/`: ML package (config, preprocessing, training, prediction, model artifacts)
@@ -53,6 +82,17 @@ Example payload:
 ## Run tests
 ```bash
 pytest app-fastapi/app/tests -q
+```
+
+## Production run (Docker)
+```bash
+docker build -t insy674-ml-api .
+docker run --rm -p 8000:8000 insy674-ml-api
+```
+
+## API smoke test
+```bash
+curl -s http://127.0.0.1:8000/api/v1/health
 ```
 
 ## Notes
