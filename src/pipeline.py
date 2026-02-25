@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import cast
+
 from feature_engine.encoding import CountFrequencyEncoder, OneHotEncoder, OrdinalEncoder
 from feature_engine.imputation import CategoricalImputer
 from feature_engine.transformation import YeoJohnsonTransformer
@@ -17,46 +19,69 @@ pipe = Pipeline(
             "categorical_missing_imputer",
             CategoricalImputer(
                 imputation_method="missing",
-                variables=config.ml_config.categorical_missing_with_constant,
+                variables=cast(
+                    list[str | int],
+                    config.ml_config.categorical_missing_with_constant,
+                ),
             ),
         ),
         (
             "categorical_frequent_imputer",
             CategoricalImputer(
                 imputation_method="frequent",
-                variables=config.ml_config.categorical_missing_with_frequent,
+                variables=cast(
+                    list[str | int],
+                    config.ml_config.categorical_missing_with_frequent,
+                ),
             ),
         ),
         (
             "yeojohnson_transformer",
             YeoJohnsonTransformer(
-                variables=config.ml_config.yeojohnson_features,
+                variables=cast(
+                    list[str | int],
+                    config.ml_config.yeojohnson_features,
+                ),
             ),
         ),
         (
             "ordinal_encoder",
             OrdinalEncoder(
                 encoding_method="ordered",
-                variables=config.ml_config.ordinal_features,
+                variables=cast(
+                    list[str | int],
+                    config.ml_config.ordinal_features,
+                ),
             ),
         ),
         (
             "arbitrary_ordinal_encoder",
             OrdinalEncoder(
                 encoding_method="arbitrary",
-                variables=config.ml_config.arbitrary_ordinal_features,
+                variables=cast(
+                    list[str | int],
+                    config.ml_config.arbitrary_ordinal_features,
+                ),
             ),
         ),
         (
             "count_frequency_encoder",
             CountFrequencyEncoder(
                 encoding_method="frequency",
-                variables=config.ml_config.count_frequency_features,
+                variables=cast(
+                    list[str | int],
+                    config.ml_config.count_frequency_features,
+                ),
             ),
         ),
         (
             "one_hot_encoder",
-            OneHotEncoder(variables=config.ml_config.one_hot_features),
+            OneHotEncoder(
+                variables=cast(
+                    list[str | int],
+                    config.ml_config.one_hot_features,
+                ),
+            ),
         ),
         (
             "experience_mapper",
