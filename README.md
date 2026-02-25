@@ -60,11 +60,9 @@ This repository contains an end-to-end machine learning workflow for predicting 
 4) Run API
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements/research.txt
-python -m src.train_pipeline
-uvicorn app.main:app --app-dir app-fastapi --reload
+make bootstrap
+make train
+make run-api
 ```
 
 ## API endpoints
@@ -157,7 +155,7 @@ Interpretation note:
 
 ## Run tests
 ```bash
-pytest app-fastapi/app/tests src/monitoring/test_drift.py -q
+make test
 ```
 
 ## Production run (Docker)
@@ -183,4 +181,5 @@ curl -s http://127.0.0.1:8000/api/v1/health
 ## Notes
 - The trained model is versioned and saved under `src/trained_models/`.
 - Drift baseline artifacts are versioned and saved under `src/trained_models/` as `*_drift_baseline.json`.
+- Drift baseline artifacts are generated at train time and ignored by Git.
 - Retraining overwrites old model artifacts to keep one active version per package version.
