@@ -51,3 +51,37 @@ def test_predict_validation_error(client):
     }
     response = client.post("/api/v1/predict", json=payload)
     assert response.status_code == 422
+
+
+def test_predict_model_missing_503(client, monkeypatch):
+    """Test that the API returns 503 when model artifact is missing."""
+    from app import api
+
+    def mock_make_prediction(*args, **kwargs):
+        raise FileNotFoundError("Model artifact not found")
+
+    monkeypatch.setattr(api, "make_prediction", mock_make_prediction)
+
+    payload = {
+        "inputs": [
+            {
+                "city": "city_41",
+                "city_development_index": 0.827,
+                "gender": "Male",
+                "relevent_experience": "Has relevent experience",
+                "enrolled_university": "Full time course",
+                "education_level": "Graduate",
+                "major_discipline": "STEM",
+                "experience": "9",
+                "company_size": "<10",
+                "company_type": "Pvt Ltd",
+                "last_new_job": "1",
+                "training_hours": 21.0,
+            }
+        ]
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 503
+    body = response.json()
+    assert "detail" in body
+    assert "Model artifact missing" in body["detail"]
