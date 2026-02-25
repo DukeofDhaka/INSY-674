@@ -69,8 +69,30 @@ uvicorn app.main:app --app-dir app-fastapi --reload
 
 ## API endpoints
 - `GET /` : basic welcome page
-- `GET /api/v1/health` : API + model health/version
+- `GET /api/v1/health` : API + model health/version (+ optional model metadata if available)
 - `POST /api/v1/predict` : batch predictions
+
+Example health response with metadata:
+
+```json
+{
+  "name": "INSY-674 Employability Prediction API",
+  "api_version": "0.1.0",
+  "model_version": "0.1.0",
+  "model_metadata": {
+    "model_version": "0.1.0",
+    "trained_at": "2026-02-25T19:00:00+00:00",
+    "git_sha": "abc1234",
+    "metrics": {
+      "accuracy": 0.81,
+      "roc_auc": 0.88
+    },
+    "n_rows": 19158,
+    "n_features": 12,
+    "feature_names": ["city", "city_development_index", "gender"]
+  }
+}
+```
 
 Example payload:
 

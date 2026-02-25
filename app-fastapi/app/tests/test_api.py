@@ -55,35 +55,55 @@ def test_predict_validation_error(client):
     assert response.status_code == 422
 
 
-def test_health_endpoint_with_metadata(client):
+def test_health_endpoint_with_metadata(client, monkeypatch):
     """Test that health endpoint returns model metadata when available."""
+    from app import api
+
+    expected_metadata = {
+        "model_version": "0.1.0",
+        "trained_at": "2026-02-25T19:00:00+00:00",
+        "git_sha": "abc1234",
+        "metrics": {"accuracy": 0.81, "roc_auc": 0.88},
+        "n_rows": 19158,
+        "n_features": 12,
+        "feature_names": [
+            "city",
+            "city_development_index",
+            "gender",
+            "relevent_experience",
+            "enrolled_university",
+            "education_level",
+            "major_discipline",
+            "experience",
+            "company_size",
+            "company_type",
+            "last_new_job",
+            "training_hours",
+        ],
+    }
+    monkeypatch.setattr(api, "load_metadata", lambda: expected_metadata)
     response = client.get("/api/v1/health")
     assert response.status_code == 200
     payload = response.json()
-    
-    # If metadata exists, verify its structure
-    if payload["model_metadata"] is not None:
-        metadata = payload["model_metadata"]
-        assert "model_version" in metadata
-        assert "trained_at" in metadata
-        assert "git_sha" in metadata
-        assert "metrics" in metadata
-        assert "accuracy" in metadata["metrics"]
-        assert "roc_auc" in metadata["metrics"]
-        assert "n_rows" in metadata
-        assert "n_features" in metadata
-        assert "feature_names" in metadata
-        assert isinstance(metadata["feature_names"], list)
+    metadata = payload["model_metadata"]
+    assert metadata is not None
+    assert metadata["model_version"] == expected_metadata["model_version"]
+    assert metadata["trained_at"] == expected_metadata["trained_at"]
+    assert metadata["git_sha"] == expected_metadata["git_sha"]
+    assert metadata["metrics"]["accuracy"] == expected_metadata["metrics"]["accuracy"]
+    assert metadata["metrics"]["roc_auc"] == expected_metadata["metrics"]["roc_auc"]
+    assert metadata["n_rows"] == expected_metadata["n_rows"]
+    assert metadata["n_features"] == expected_metadata["n_features"]
+    assert metadata["feature_names"] == expected_metadata["feature_names"]
 
 
 def test_health_endpoint_without_metadata(client, monkeypatch):
     """Test that health endpoint returns 200 even when metadata is missing."""
-    from src.processing import data_manager
-    
-    # Mock load_metadata to return None (simulating missing metadata file)
-    monkeypatch.setattr(data_manager, "load_metadata", lambda: None)
-    
+    from app import api
+
+    monkeypatch.setattr(api, "load_metadata", lambda: None)
     response = client.get("/api/v1/health")
     assert response.status_code == 200
     payload = response.json()
+    assert "model_metadata" in payload
     assert payload["model_metadata"] is None
