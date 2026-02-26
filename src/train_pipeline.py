@@ -50,36 +50,7 @@ def run_training() -> Dict[str, float]:
         "accuracy": float(accuracy_score(y_valid, y_pred)),
         "roc_auc": float(roc_auc_score(y_valid, y_proba)),
     }
-        # ---------------- SHAP EXPLANATIONS ----------------
-    try:
-        # Separate preprocessing and model
-        preprocessor = pipe[:-1]
-        model = pipe.named_steps["logistic_regression"]
 
-        # Transform validation data
-        X_valid_transformed = preprocessor.transform(x_valid)
-
-        # Build SHAP explainer for logistic regression
-        explainer = shap.LinearExplainer(model, X_valid_transformed)
-
-        # Compute SHAP values
-        shap_values = explainer.shap_values(X_valid_transformed)
-
-        # Save summary plot
-        shap.summary_plot(
-            shap_values,
-            X_valid_transformed,
-            show=False
-        )
-        plt.tight_layout()
-        plt.savefig("shap_summary.png")
-        plt.close()
-
-        print("SHAP summary plot saved as shap_summary.png")
-
-    except Exception as e:
-        print(f"SHAP explanation failed: {e}")
-        
     # Build model metadata
     feature_names = list(x_train.columns) if hasattr(x_train, "columns") else []
     metadata = {
