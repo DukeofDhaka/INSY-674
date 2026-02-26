@@ -1,3 +1,4 @@
+"""Model training pipeline (preprocessing + logistic regression)."""
 from __future__ import annotations
 
 from typing import cast
