@@ -155,3 +155,29 @@ def test_health_endpoint_without_metadata(client, monkeypatch):
     payload = response.json()
     assert "model_metadata" in payload
     assert payload["model_metadata"] is None
+
+
+def test_monitor_drift_endpoint_success(client, monkeypatch):
+    from app import api
+
+    monkeypatch.setattr(api, "load_drift_baseline", lambda: _baseline_for_api_tests())
+    payload = {"inputs": [_valid_input_row()]}
+
+    response = client.post("/api/v1/monitor/drift", json=payload)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["n_records"] == 1
+    assert "overall_status" in body
+    assert "feature_reports" in body
+    assert isinstance(body["feature_reports"], list)
+
+
+def test_monitor_drift_endpoint_missing_baseline(client, monkeypatch):
+    from app import api
+
+    monkeypatch.setattr(api, "load_drift_baseline", lambda: None)
+    payload = {"inputs": [_valid_input_row()]}
+
+    response = client.post("/api/v1/monitor/drift", json=payload)
+    assert response.status_code == 503
+    assert "Drift baseline is missing" in response.json()["detail"]

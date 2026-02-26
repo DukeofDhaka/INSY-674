@@ -40,5 +40,52 @@ jobs:
       - name: Run tests
         run: pytest app-fastapi/app/tests src/monitoring/test_drift.py -q
 
+      - name: API smoke test
+        run: |
+          python -m uvicorn app.main:app --app-dir app-fastapi --host 127.0.0.1 --port 8000 >/tmp/uvicorn.log 2>&1 &
+          UVICORN_PID=$!
+          cleanup() {
+            kill $UVICORN_PID >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          READY=0
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8000/api/v1/health >/tmp/health.json; then
+              READY=1
+              break
+            fi
+            sleep 1
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            echo "API did not become ready in time"
+            cat /tmp/uvicorn.log
+            exit 1
+          fi
+
+          curl -sf -X POST http://127.0.0.1:8000/api/v1/predict \
+            -H "Content-Type: application/json" \
+            -d '{"inputs":[{"city":"city_41","city_development_index":0.827,"gender":"Male","relevent_experience":"Has relevent experience","enrolled_university":"Full time course","education_level":"Graduate","major_discipline":"STEM","experience":"9","company_size":"<10","company_type":"Pvt Ltd","last_new_job":"1","training_hours":21.0}]}' \
+            >/tmp/predict.json
+
+          curl -sf -X POST http://127.0.0.1:8000/api/v1/monitor/drift \
+            -H "Content-Type: application/json" \
+            -d '{"inputs":[{"city":"city_41","city_development_index":0.827,"gender":"Male","relevent_experience":"Has relevent experience","enrolled_university":"Full time course","education_level":"Graduate","major_discipline":"STEM","experience":"9","company_size":"<10","company_type":"Pvt Ltd","last_new_job":"1","training_hours":21.0}]}' \
+            >/tmp/drift.json
+
+          python - <<'PY'
+          import json
+
+          health = json.load(open("/tmp/health.json"))
+          predict = json.load(open("/tmp/predict.json"))
+          drift = json.load(open("/tmp/drift.json"))
+
+          assert "model_version" in health
+          assert "predictions" in predict and len(predict["predictions"]) == 1
+          assert "overall_status" in drift
+          print("API smoke test passed")
+          PY
+
       - name: Type check
-        run: mypy src/ --ignore-missing-imports
+        run: mypy src/ app-fastapi/app --ignore-missing-imports

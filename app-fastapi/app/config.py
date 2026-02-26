@@ -3,11 +3,16 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from typing import Any
 
 from pydantic import BaseModel, Field
 
+loguru_logger: Any | None
+
 try:
-    from loguru import logger as loguru_logger
+    from loguru import logger as _loguru_logger
+
+    loguru_logger = _loguru_logger
 except Exception:  # pragma: no cover
     loguru_logger = None
 
