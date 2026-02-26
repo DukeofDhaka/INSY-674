@@ -3,16 +3,19 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, cast
 
 from pydantic import BaseModel, Field
 
-loguru_logger: Any | None
+if TYPE_CHECKING:
+    from loguru import Logger as LoguruLogger
+
+loguru_logger: LoguruLogger | None
 
 try:
     from loguru import logger as _loguru_logger
 
-    loguru_logger = _loguru_logger
+    loguru_logger = cast("LoguruLogger", _loguru_logger)
 except Exception:  # pragma: no cover
     loguru_logger = None
 
@@ -61,9 +64,9 @@ def setup_logging(settings: Settings) -> None:
         )
 
 
-def get_logger(name: str):
+def get_logger(name: str) -> LoguruLogger | logging.Logger:
     if loguru_logger is not None:
-        return loguru_logger.bind(module=name)
+        return cast("LoguruLogger", loguru_logger.bind(module=name))
     return logging.getLogger(name)
 
 
