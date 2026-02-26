@@ -75,3 +75,25 @@ def load_metadata() -> t.Optional[t.Dict[str, t.Any]]:
         return None
     with open(file_path, "r") as f:
         return json.load(f)
+
+
+def drift_baseline_file_name() -> str:
+    return f"{config.app_config.pipeline_save_file}{_version}_drift_baseline.json"
+
+
+def drift_baseline_artifact_path() -> Path:
+    return TRAINED_MODEL_DIR / drift_baseline_file_name()
+
+
+def save_drift_baseline(baseline: t.Dict[str, t.Any]) -> None:
+    save_path = drift_baseline_artifact_path()
+    with open(save_path, "w", encoding="utf-8") as f:
+        json.dump(baseline, f, indent=2)
+
+
+def load_drift_baseline() -> t.Optional[t.Dict[str, t.Any]]:
+    file_path = drift_baseline_artifact_path()
+    if not file_path.exists():
+        return None
+    with open(file_path, "r", encoding="utf-8") as f:
+        return json.load(f)

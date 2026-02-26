@@ -11,7 +11,7 @@ from src import __version__ as model_version
 from src.config.core import config
 from src.monitoring.drift import compute_drift_report
 from src.predict import make_prediction
-from src.processing.data_manager import load_metadata
+from src.processing.data_manager import load_drift_baseline, load_metadata
 
 from app import __version__, schemas
 from app.config import get_logger, settings
