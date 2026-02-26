@@ -81,6 +81,8 @@ pipe = Pipeline(
                     list[str | int],
                     config.ml_config.one_hot_features,
                 ),
+                drop_last=False,
+                ignore_format=True
             ),
         ),
         (
