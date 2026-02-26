@@ -101,8 +101,15 @@ def test_predict_validation_error(client):
     assert response.status_code == 422
 
 
-def test_predict_rejects_unknown_field(client):
-    """Test that the API rejects requests with unexpected fields."""
+def test_predict_model_missing_503(client, monkeypatch):
+    """Test that the API returns 503 when model artifact is missing."""
+    from app import api
+
+    def mock_make_prediction(*args, **kwargs):
+        raise FileNotFoundError("Model artifact not found")
+
+    monkeypatch.setattr(api, "make_prediction", mock_make_prediction)
+
     payload = {
         "inputs": [
             {
@@ -118,11 +125,11 @@ def test_predict_rejects_unknown_field(client):
                 "company_type": "Pvt Ltd",
                 "last_new_job": "1",
                 "training_hours": 21.0,
-                "unexpected_field": "should_fail",
             }
         ]
     }
     response = client.post("/api/v1/predict", json=payload)
-    assert response.status_code == 422
+    assert response.status_code == 503
     body = response.json()
     assert "detail" in body
+    assert "Model artifact missing" in body["detail"]

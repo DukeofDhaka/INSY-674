@@ -72,6 +72,12 @@ async def predict(input_data: schemas.MultipleDataInputs) -> Any:
     except ValueError as exc:
         logger.exception(f"Prediction input validation failure: {exc}")
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except FileNotFoundError as exc:
+        logger.error(f"Model artifact missing: {exc}")
+        raise HTTPException(
+            status_code=503,
+            detail="Model artifact missing. Run training first.",
+        ) from exc
     except Exception as exc:
         logger.exception(f"Unexpected prediction failure: {exc}")
         raise HTTPException(
