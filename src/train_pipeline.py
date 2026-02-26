@@ -11,7 +11,12 @@ from src import __version__ as _version
 from src.config.core import config
 from src.monitoring.drift import build_drift_baseline
 from src.pipeline import pipe
-from src.processing.data_manager import load_dataset, save_metadata, save_pipeline
+from src.processing.data_manager import (
+    load_dataset,
+    save_drift_baseline,
+    save_metadata,
+    save_pipeline,
+)
 
 
 def _get_git_sha() -> str:
@@ -50,6 +55,7 @@ def run_training() -> Dict[str, float]:
         "accuracy": float(accuracy_score(y_valid, y_pred)),
         "roc_auc": float(roc_auc_score(y_valid, y_proba)),
     }
+    drift_baseline = build_drift_baseline(x_train=x_train, config=config.ml_config)
 
     # Build model metadata
     feature_names = list(x_train.columns) if hasattr(x_train, "columns") else []
@@ -65,6 +71,7 @@ def run_training() -> Dict[str, float]:
 
     save_pipeline(pipeline_to_persist=pipe)
     save_metadata(metadata=metadata)
+    save_drift_baseline(baseline=drift_baseline)
     return metrics
 
 
