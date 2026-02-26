@@ -12,6 +12,14 @@ from src import __version__ as _version
 from src.config.core import DATASET_DIR, TRAINED_MODEL_DIR, config
 
 
+def _load_json_dict(file_path: Path) -> t.Dict[str, t.Any]:
+    with open(file_path, "r", encoding="utf-8") as f:
+        payload = json.load(f)
+    if not isinstance(payload, dict):
+        raise ValueError(f"Expected JSON object at {file_path}, got {type(payload).__name__}.")
+    return t.cast(t.Dict[str, t.Any], payload)
+
+
 def model_file_name() -> str:
     return f"{config.app_config.pipeline_save_file}{_version}.pkl"
 
@@ -73,8 +81,7 @@ def load_metadata() -> t.Optional[t.Dict[str, t.Any]]:
     file_path = metadata_artifact_path()
     if not file_path.exists():
         return None
-    with open(file_path, "r") as f:
-        return json.load(f)
+    return _load_json_dict(file_path)
 
 
 def drift_baseline_file_name() -> str:
@@ -95,5 +102,4 @@ def load_drift_baseline() -> t.Optional[t.Dict[str, t.Any]]:
     file_path = drift_baseline_artifact_path()
     if not file_path.exists():
         return None
-    with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return _load_json_dict(file_path)
