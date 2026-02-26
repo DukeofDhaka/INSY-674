@@ -54,26 +54,24 @@ def remove_old_pipelines(files_to_keep: t.List[str]) -> None:
             model_file.unlink()
 
 
-def drift_baseline_file_name() -> str:
-    return f"{config.app_config.pipeline_save_file}{_version}_drift_baseline.json"
+def metadata_file_name() -> str:
+    return f"{config.app_config.pipeline_save_file}{_version}_metadata.json"
 
 
-def drift_baseline_artifact_path() -> Path:
-    return TRAINED_MODEL_DIR / drift_baseline_file_name()
+def metadata_artifact_path() -> Path:
+    return TRAINED_MODEL_DIR / metadata_file_name()
 
 
-def save_drift_baseline(baseline: t.Dict[str, t.Any]) -> None:
-    file_path = drift_baseline_artifact_path()
-    with file_path.open("w", encoding="utf-8") as file:
-        json.dump(baseline, file, indent=2)
+def save_metadata(metadata: t.Dict[str, t.Any]) -> None:
+    save_file_name = metadata_file_name()
+    save_path = TRAINED_MODEL_DIR / save_file_name
+    with open(save_path, "w") as f:
+        json.dump(metadata, f, indent=2)
 
 
-def load_drift_baseline() -> t.Optional[t.Dict[str, t.Any]]:
-    file_path = drift_baseline_artifact_path()
+def load_metadata() -> t.Optional[t.Dict[str, t.Any]]:
+    file_path = metadata_artifact_path()
     if not file_path.exists():
         return None
-    with file_path.open("r", encoding="utf-8") as file:
-        loaded = json.load(file)
-    if isinstance(loaded, dict):
-        return loaded
-    return None
+    with open(file_path, "r") as f:
+        return json.load(f)
