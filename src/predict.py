@@ -21,6 +21,8 @@ def make_prediction(input_data: Any) -> Dict[str, Any]:
         data = input_data.copy()
     else:
         data = pd.DataFrame(input_data)
+    if data.empty:
+        raise ValueError("input_data contains no rows. Provide at least one record.")
 
     if config.ml_config.target in data.columns:
         data = data.drop(columns=[config.ml_config.target])
