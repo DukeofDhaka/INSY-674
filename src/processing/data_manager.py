@@ -84,6 +84,27 @@ def load_metadata() -> t.Optional[t.Dict[str, t.Any]]:
     return _load_json_dict(file_path)
 
 
+def evaluation_report_file_name() -> str:
+    return f"{config.app_config.pipeline_save_file}{_version}_evaluation.json"
+
+
+def evaluation_report_artifact_path() -> Path:
+    return TRAINED_MODEL_DIR / evaluation_report_file_name()
+
+
+def save_evaluation_report(report: t.Dict[str, t.Any]) -> None:
+    save_path = evaluation_report_artifact_path()
+    with open(save_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+
+def load_evaluation_report() -> t.Optional[t.Dict[str, t.Any]]:
+    file_path = evaluation_report_artifact_path()
+    if not file_path.exists():
+        return None
+    return _load_json_dict(file_path)
+
+
 def drift_baseline_file_name() -> str:
     return f"{config.app_config.pipeline_save_file}{_version}_drift_baseline.json"
 

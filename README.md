@@ -52,6 +52,7 @@ This repository contains an end-to-end machine learning workflow for predicting 
 - `app-fastapi/`: REST API for model serving
 - `requirements/`: split dependency files for dev/research/production
 - `notebooks/`: experimentation notebooks
+- `MODEL_CARD.md`: model purpose, performance snapshot, risks, and retraining policy
 
 ## Quick start
 1) Create and activate virtual environment
@@ -64,6 +65,8 @@ make bootstrap
 make train
 make run-api
 ```
+
+Training now also writes a versioned evaluation report JSON to `src/trained_models/`.
 
 ## API endpoints
 - `GET /` : basic welcome page
@@ -180,6 +183,18 @@ Interpretation note:
 make test
 ```
 
+## Model Governance Artifacts
+- Model card: `MODEL_CARD.md`
+- Training metadata artifact: `src/trained_models/*_metadata.json`
+- Training evaluation artifact: `src/trained_models/*_evaluation.json`
+  - contains metrics, classification report, and confusion matrix
+
+Example command to inspect the latest evaluation artifact:
+
+```bash
+cat src/trained_models/employability_model_v0.1.0_evaluation.json
+```
+
 ## Production run (Docker)
 ```bash
 docker build -t insy674-ml-api .
@@ -203,5 +218,6 @@ curl -s http://127.0.0.1:8000/api/v1/health
 ## Notes
 - The trained model is versioned and saved under `src/trained_models/`.
 - Drift baseline artifacts are versioned and saved under `src/trained_models/` as `*_drift_baseline.json`.
+- Evaluation artifacts are versioned and saved under `src/trained_models/` as `*_evaluation.json`.
 - Drift baseline artifacts are generated at train time and ignored by Git.
 - Retraining overwrites old model artifacts to keep one active version per package version.

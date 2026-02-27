@@ -15,6 +15,7 @@ build/
 .coverage
 src/trained_models/*.pkl
 src/trained_models/*_drift_baseline.json
+src/trained_models/*_evaluation.json
 src/trained_models/*_metadata.json
 !src/trained_models/.gitkeep
 *.log
