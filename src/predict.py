@@ -12,11 +12,16 @@ from src.processing.data_manager import load_pipeline, model_file_name
 
 @lru_cache(maxsize=1)
 def _load_trained_pipeline():
+    """Load and cache the trained model pipeline."""
     return load_pipeline(file_name=model_file_name())
 
 
 def make_prediction(input_data: Any) -> Dict[str, Any]:
-    """Make predictions from raw input data."""
+    """Make predictions from raw input data.
+
+    Accepts a pandas DataFrame or an object convertible to a DataFrame
+    (e.g., list[dict], dict[str, list], etc.).
+    """
     if isinstance(input_data, pd.DataFrame):
         data = input_data.copy()
     else:
