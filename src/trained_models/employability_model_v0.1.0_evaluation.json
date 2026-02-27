@@ -1,0 +1,71 @@
+{
+  "model_version": "0.1.0",
+  "generated_at": "2026-02-27T04:17:07.514577+00:00",
+  "git_sha": "72445c3",
+  "validation_rows": 3832,
+  "metrics": {
+    "accuracy": 0.7309498956158664,
+    "roc_auc": 0.7768434251065047
+  },
+  "target_distribution": {
+    "class_0_rate": 0.7507828810020877,
+    "class_1_rate": 0.24921711899791232
+  },
+  "classification_report": {
+    "0": {
+      "precision": 0.8852253756260434,
+      "recall": 0.7372262773722628,
+      "f1-score": 0.8044756305708325,
+      "support": 2877.0
+    },
+    "1": {
+      "precision": 0.4735376044568245,
+      "recall": 0.7120418848167539,
+      "f1-score": 0.5687996654119615,
+      "support": 955.0
+    },
+    "accuracy": 0.7309498956158664,
+    "macro avg": {
+      "precision": 0.679381490041434,
+      "recall": 0.7246340810945083,
+      "f1-score": 0.6866376479913969,
+      "support": 3832.0
+    },
+    "weighted avg": {
+      "precision": 0.7826257353685788,
+      "recall": 0.7309498956158664,
+      "f1-score": 0.7457411455168863,
+      "support": 3832.0
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      0,
+      1
+    ],
+    "matrix": [
+      [
+        2121,
+        756
+      ],
+      [
+        275,
+        680
+      ]
+    ]
+  },
+  "feature_names": [
+    "city",
+    "city_development_index",
+    "gender",
+    "relevent_experience",
+    "enrolled_university",
+    "education_level",
+    "major_discipline",
+    "experience",
+    "company_size",
+    "company_type",
+    "last_new_job",
+    "training_hours"
+  ]
+}
